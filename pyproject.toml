@@ -1,0 +1,36 @@
+[project]
+name = "vp-analysis-api"
+version = "0.0.1"
+authors = [
+  { name="Variant Perception", email="systems@variantperception.com" },
+]
+description = "API to access Variant Perception's data and models"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "api",
+    "data",
+    "models",
+    "variant perception",
+]
+dependencies = [
+    "pandas==1.5.3",
+    "httpx",
+]
+dev-dependencies = [
+    "pytest",
+    "hatchling",
+]
+
+[project.urls]
+Homepage = "https://github.com/variantperception/vp-analysis-api"
+Issues = "https://github.com/variantperception/vp-analysis-api/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
