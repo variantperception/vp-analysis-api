@@ -22,7 +22,7 @@ class VPAnalysisAPI:
     def get_series(self, series_list):
         df = self._get_series_internal([f"vp:{s}" for s in series_list])
         # remove vp: from the column names
-        df.columns = [c[3:] for c in df.columns]
+        df.rename(columns=lambda x: x[3:], inplace=True)
         return df
 
     def _get_series_internal(
