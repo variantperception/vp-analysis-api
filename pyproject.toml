@@ -21,6 +21,7 @@ keywords = [
 dependencies = [
     "pandas==1.5.3",
     "httpx",
+    "http2",
 ]
 dev-dependencies = [
     "pytest",
