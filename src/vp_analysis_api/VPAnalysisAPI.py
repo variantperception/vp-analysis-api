@@ -16,7 +16,7 @@ class VPAnalysisAPI:
         # api endpoint
         self.dataApiUrl = (
             os.environ.get("VP_DATA_API_URL", "https://api.variantperception.com")
-            + "/api/v1/series"
+            + "/api/v1"
         )
 
     def get_series(self, series_list):
@@ -65,7 +65,8 @@ class VPAnalysisAPI:
             # df_res = httpx.post(dataApiUrl, json=dataBody, headers=requestsHeaders)
             with httpx.Client(http2=True) as client:
                 df_res = client.post(
-                    self.dataApiUrl, json=dataBody, headers=requestsHeaders, timeout=600
+                    self.dataApiUrl + "/series",
+                    json=dataBody, headers=requestsHeaders, timeout=600
                 )
             if df_res.status_code != 200:
                 raise ValueError(df_res.text)
@@ -96,3 +97,52 @@ class VPAnalysisAPI:
         # the start date will be whatever the earliest start date of any column is
         df = df.loc[df.first_valid_index() :]
         return df
+
+    def get_security_factors(self, securities, factors):
+        dataBody = {"securities": securities, "factors": factors}
+        requestsHeaders = {
+            "Authorization": f"Bearer
+            {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        with httpx.Client(http2=True) as client:
+            df_res = client.post(
+                self.dataApiUrl + "/security_factors",
+                json=dataBody,
+                headers=requestsHeaders,
+                timeout=600,
+            )
+        if df_res.status_code != 200:
+            raise ValueError(df_res.text)
+        
+        return pd.read_json(df_res.text, orient="table")
+    
+    def get_factors(self):
+        requestsHeaders = {
+            "Authorization": f"Bearer
+            {self.api_key}", "Content-Type": "application/json" 
+            }
+        with httpx.Client(http2=True) as client:
+            df_res = client.get(
+                self.dataApiUrl + "/factors",
+                headers=requestsHeaders,
+                timeout=600,
+            )
+        if df_res.status_code != 200:
+            raise ValueError(df_res.text)
+        return pd.read_json(df_res.text, orient="table")
+    
+    def get_securities(self):
+        requestsHeaders = {
+            "Authorization": f"Bearer
+            {self.api_key}", "Content-Type": "application/json" 
+            }
+        with httpx.Client(http2=True) as client:
+            df_res = client.get(
+                self.dataApiUrl + "/securities",
+                headers=requestsHeaders,
+                timeout=600,
+            )
+        if df_res.status_code != 200:
+            raise ValueError(df_res.text)
+        return pd.read_json(df_res.text, orient="table")
