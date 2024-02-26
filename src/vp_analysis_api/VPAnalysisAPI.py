@@ -19,7 +19,10 @@ class VPAnalysisAPI:
             + "/api/v1/series"
         )
 
-    def get_series(
+    def get_series(self, series_list):
+        return self._get_series_internal([f"vp:{s}" for s in series_list])
+
+    def _get_series_internal(
         self,
         series_list,
         freq=None,
@@ -75,7 +78,7 @@ class VPAnalysisAPI:
         first_revision=False,
         validate_old=20,
     ):
-        return self.get_series(
+        return self._get_series_internal(
             series_list,
             freq=freq,
             validate_old=validate_old,
