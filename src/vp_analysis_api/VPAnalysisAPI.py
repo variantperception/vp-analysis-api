@@ -1,6 +1,7 @@
 import httpx
 import os
 import pandas as pd
+import pyarrow as pa
 
 
 class VPAnalysisAPI:
@@ -72,8 +73,10 @@ class VPAnalysisAPI:
                 )
             if df_res.status_code != 200:
                 raise ValueError(df_res.text)
-            df = pd.read_json(df_res.text, orient="table")
-            df_list.append(df)
+
+            with pa.ipc.open_file(df_res.content) as reader:
+                df_list.append(reader.read_pandas())
+
         return pd.concat(df_list, axis=1)
 
     def get_df_from_series_list(
@@ -106,6 +109,8 @@ class VPAnalysisAPI:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+
+        # the dataframe is streamed as media type vnd/apache.arrow.file
         with httpx.Client(http2=True) as client:
             df_res = client.post(
                 self.dataApiUrl + "/security_factors",
@@ -116,7 +121,14 @@ class VPAnalysisAPI:
         if df_res.status_code != 200:
             raise ValueError(df_res.text)
 
-        return pd.read_json(df_res.text, orient="table")
+        df = None
+        with pa.ipc.open_file(df_res.content) as reader:
+            df = reader.read_pandas()
+
+        df = df.pivot(
+            index="dt", columns=["stock_code", "factor_identifier"], values="value"
+        )
+        return df
 
     def get_factors(self):
         requestsHeaders = {
@@ -131,7 +143,11 @@ class VPAnalysisAPI:
             )
         if df_res.status_code != 200:
             raise ValueError(df_res.text)
-        return pd.read_json(df_res.text, orient="table")
+
+        df = None
+        with pa.ipc.open_file(df_res.content) as reader:
+            df = reader.read_pandas()
+        return df
 
     def get_securities(self):
         requestsHeaders = {
@@ -146,4 +162,8 @@ class VPAnalysisAPI:
             )
         if df_res.status_code != 200:
             raise ValueError(df_res.text)
-        return pd.read_json(df_res.text, orient="table")
+
+        df = None
+        with pa.ipc.open_file(df_res.content) as reader:
+            df = reader.read_pandas()
+        return df
