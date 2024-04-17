@@ -167,3 +167,20 @@ class VPAnalysisAPI:
         with pa.ipc.open_file(df_res.content) as reader:
             df = reader.read_pandas()
         return df
+
+    def invalidate_cache(self, tickers):
+        requestsHeaders = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        dataBody = {"tickers": tickers.tolist()}
+        with httpx.Client(http2=True) as client:
+            res = client.post(
+                self.dataApiUrl + "/series/invalidateCache",
+                headers=requestsHeaders,
+                json=dataBody,
+                timeout=600,
+            )
+
+            if res.status_code != 200:
+                raise ValueError(res.text)
