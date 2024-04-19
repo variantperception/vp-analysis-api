@@ -179,7 +179,7 @@ class VPAnalysisAPI:
                 self.dataApiUrl + "/series/invalidateCache",
                 headers=requestsHeaders,
                 json=dataBody,
-                timeout=600,
+                timeout=3600,
             )
 
             if res.status_code != 200:
