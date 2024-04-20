@@ -2,7 +2,15 @@ import httpx
 import os
 import pandas as pd
 import pyarrow as pa
+import time
 
+def is_server_overload_error(res):
+    if (
+        res.status_code == 503
+        and res.text == "upstream connect error or disconnect/reset before headers. reset reason: connection termination"
+    ) or (res.status_code == 429 and res.text == "Rate exceeded."):
+        return True
+    return False
 
 class VPAnalysisAPI:
     def __init__(
@@ -179,8 +187,19 @@ class VPAnalysisAPI:
                 self.dataApiUrl + "/series/invalidateCache",
                 headers=requestsHeaders,
                 json=dataBody,
-                timeout=3600,
+                timeout=600,
             )
-
+            
+            num_of_retries = 0
+            while is_server_overload_error(res) and num_of_retries < 3:
+                time.sleep(10)
+                res = client.post(
+                    self.dataApiUrl + "/series/invalidateCache",
+                    json=dataBody,
+                    headers=requestsHeaders,
+                    timeout=600,
+                )
+                num_of_retries += 1
+            
             if res.status_code != 200:
                 raise ValueError(res.text)
