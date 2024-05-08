@@ -40,7 +40,6 @@ class VPAnalysisAPI:
         freq=None,
         validate_old=None,
         currency=None,
-        first_revision=False,
     ):
         """
         :param series_list: list of series to be retrieved
@@ -65,8 +64,6 @@ class VPAnalysisAPI:
                 dataBody["freq"] = freq
             if currency is not None:
                 dataBody["currency"] = currency
-            if first_revision is not None:
-                dataBody["first_revision"] = first_revision
             requestsHeaders = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
@@ -100,7 +97,6 @@ class VPAnalysisAPI:
             freq=freq,
             validate_old=validate_old,
             currency=currency,
-            first_revision=first_revision,
         )
 
     def clean_df(self, df, freq="B", start_date="1997-01-01"):
