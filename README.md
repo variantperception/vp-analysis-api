@@ -22,5 +22,6 @@ from vp_analysis_api import VPAnalysisAPI
 
 vp = VPAnalysisAPI("your-api-key")
 
-vp.get_series(['spx_fast_money'])
+vp.get_series(['lei_us_grow'])
+vp.get_security_factors(['AAPL:NasdaqGS'],['vp_crowding_score', 'capital_cycle_score'])
 ```
