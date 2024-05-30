@@ -17,11 +17,4 @@ pip install git+https://github.com/variantperception/vp-analysis-api.git
 
 To use:
 
-```python
-from vp_analysis_api import VPAnalysisAPI
-
-vp = VPAnalysisAPI("your-api-key")
-
-vp.get_series(['lei_us_grow'])
-vp.get_security_factors(['AAPL:NasdaqGS'],['vp_crowding_score', 'capital_cycle_score'])
-```
+See the [examples](./examples).
