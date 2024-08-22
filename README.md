@@ -19,3 +19,9 @@ pip install git+https://github.com/variantperception/vp-analysis-api.git
 To use:
 
 See the [examples](./examples).
+
+## API Documentation
+
+For detailed API documentation, please visit our Swagger documentation:
+
+- **Swagger UI**: [https://data-api-jxbbgdlq2q-ue.a.run.app/docs](https://data-api-jxbbgdlq2q-ue.a.run.app/docs)
