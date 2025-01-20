@@ -199,3 +199,29 @@ class VPAnalysisAPI:
             
             if res.status_code != 200:
                 raise ValueError(res.text)
+    
+    def run_lppl(self, dates: list[str], prices: list[int]):
+        requestsHeaders = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        data_api_request = {
+            "format": "df",
+            "index": dates,
+            "price": prices,
+        }
+
+        with httpx.Client(http2=True) as client:
+            df_res = client.post(
+                self.dataApiUrl + "/model/lppl",
+                json=data_api_request,
+                headers=requestsHeaders,
+                timeout=1200,
+            )
+        if df_res.status_code != 200:
+            raise ValueError(df_res.text)
+        
+        df = None
+        with pa.ipc.open_file(df_res.content) as reader:
+            df = reader.read_pandas()
+        return df
