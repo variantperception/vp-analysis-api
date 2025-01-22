@@ -90,7 +90,7 @@ class VPAnalysisAPI:
         freq=None,
         currency=None,
         first_revision=False,
-        validate_old=20,
+        validate_old=None,
     ):
         return self._get_series_internal(
             series_list,
