@@ -10,18 +10,16 @@ Steps to use:
 4. Install the repo into your python project
 5. Go to the [Ticker finder page on the VP portal](https://portal.variantperception.com/vp-data-api) to find relevant VP data tickers.
    
-To install:
-
+## Installation
 ```shell
 pip install git+https://github.com/variantperception/vp-analysis-api.git
 ```
+(Installation via conda is not currently supported)
 
-To use:
-
+## Usage
 See the [examples](./examples).
 
-## API Documentation
-
+## Swagger documentation
 For detailed API documentation, please visit our Swagger documentation:
 
 - **Swagger UI**: [https://data-api-jxbbgdlq2q-ue.a.run.app/docs](https://data-api-jxbbgdlq2q-ue.a.run.app/docs)
