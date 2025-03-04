@@ -96,13 +96,16 @@ class VPAnalysisAPI:
         series_list,
         freq=None,
         currency=None,
-        first_revision=False,
+        start_date=None, 
+        end_date=None,
         validate_old=None,
     ):
         return self._get_series_internal(
             series_list,
             freq=freq,
             validate_old=validate_old,
+            start_date=start_date,
+            end_date=end_date,
             currency=currency,
         )
 
