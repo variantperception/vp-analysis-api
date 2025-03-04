@@ -28,8 +28,8 @@ class VPAnalysisAPI:
             + "/api/v1"
         )
 
-    def get_series(self, series_list):
-        df = self._get_series_internal([f"vp:{s}" for s in series_list])
+    def get_series(self, series_list, start_date=None, end_date=None):
+        df = self._get_series_internal([f"vp:{s}" for s in series_list], start_date=start_date, end_date=end_date)
         # remove vp: from the column names
         df.rename(columns=lambda x: x[3:], inplace=True)
         return df
@@ -39,6 +39,8 @@ class VPAnalysisAPI:
         series_list,
         freq=None,
         validate_old=None,
+        start_date=None,
+        end_date=None,
         currency=None,
     ):
         """
@@ -64,6 +66,11 @@ class VPAnalysisAPI:
                 dataBody["freq"] = freq
             if currency is not None:
                 dataBody["currency"] = currency
+            if start_date is not None:
+                dataBody["start_date"] = start_date
+            if end_date is not None:
+                dataBody["end_date"] = end_date
+
             requestsHeaders = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
