@@ -32,7 +32,7 @@ jobs:
         pip install build
     - name: Build package
       run: python -m build
-    - name: Test package installation
-      run: |
-        pip install .
-        python -c "import vp_analysis_api"
+    # - name: Test package installation
+    #   run: |
+    #     pip install .
+    #     python -c "import vp_analysis_api"

@@ -29,7 +29,11 @@ class VPAnalysisAPI:
         )
 
     def get_series(self, series_list, start_date=None, end_date=None):
-        df = self._get_series_internal([f"vp:{s}" for s in series_list], start_date=start_date, end_date=end_date)
+        df = self._get_series_internal(
+            [f"vp:{s}" for s in series_list],
+            start_date=start_date,
+            end_date=end_date
+        )
         # remove vp: from the column names
         df.rename(columns=lambda x: x[3:], inplace=True)
         return df
