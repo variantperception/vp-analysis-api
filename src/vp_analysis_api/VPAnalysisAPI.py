@@ -3,6 +3,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 import httpx
+import numpy as np
 import pandas as pd
 import pyarrow as pa
 
@@ -52,7 +53,7 @@ def is_server_overload_error(res: httpx.Response) -> bool:
 class VPAnalysisAPI:
     """Client for interacting with the VP Analysis Data API.
 
-    This class provides methods to interact with the VP Analysis API, including
+    This class provides methods to interact with the VP Analysis Data API, including
     retrieving series data, security factors, and running models.
 
     Attributes:
@@ -209,7 +210,7 @@ class VPAnalysisAPI:
         """Get DataFrame from a list of series with optional parameters.
 
         Args:
-            series_list: List of series identifiers to retrieve.
+            series_list: List of series tickers to retrieve.
             freq: Optional frequency for the data.
             currency: Optional currency code.
             start_date: Optional start date in YYYY-MM-DD format.
@@ -378,7 +379,7 @@ class VPAnalysisAPI:
         except Exception as e:
             raise APIRequestError(f"Unexpected error while getting securities: {str(e)}") from e
 
-    def invalidate_cache(self, tickers: List[str]) -> None:
+    def invalidate_cache(self, tickers: np.ndarray) -> None:
         """Invalidate the cache for specified tickers.
 
         Args:
@@ -392,7 +393,7 @@ class VPAnalysisAPI:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        data_body = {"tickers": tickers}
+        data_body = {"tickers": tickers.tolist()}
 
         try:
             with httpx.Client(http2=True, base_url=self.data_api_url) as client:
