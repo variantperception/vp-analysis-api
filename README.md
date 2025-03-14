@@ -22,4 +22,4 @@ See the [examples](./examples).
 ## Swagger documentation
 For detailed API documentation, please visit our Swagger documentation:
 
-- **Swagger UI**: [https://data-api-jxbbgdlq2q-ue.a.run.app/docs](https://data-api-jxbbgdlq2q-ue.a.run.app/docs)
+- **Swagger UI**: [https://api.variantperception.com/docs](https://api.variantperception.com/docs)
