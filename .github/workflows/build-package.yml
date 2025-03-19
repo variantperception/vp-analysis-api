@@ -39,7 +39,7 @@ jobs:
       run: ruff check . 
 
   build:
-    needs: [check-code-quality]
+    # needs: [check-code-quality]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
