@@ -259,6 +259,7 @@ class VPAnalysisAPI:
         self,
         securities: List[str],
         factors: List[str],
+        first_revision: bool = False,
     ) -> pd.DataFrame:
         """Get security factors data.
 
@@ -273,7 +274,12 @@ class VPAnalysisAPI:
             APIRequestError: If the API request fails.
             RateLimitError: If rate limits are exceeded.
         """
-        data_body = {"securities": securities, "factors": factors}
+        
+        data_body = {
+            "securities": securities, 
+            "factors": factors, 
+            "first_revision": first_revision
+        }
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
