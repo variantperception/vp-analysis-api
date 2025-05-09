@@ -84,9 +84,7 @@ class VPAnalysisAPI:
                 "No API key provided. Set VP_ANALYSIS_API_KEY environment variable or pass api_key parameter."
             )
 
-        self.data_api_url = (
-            os.environ.get("VP_DATA_API_URL", "https://api.variantperception.com") + "/api/v1"
-        )
+        self.data_api_url = os.environ.get("VP_DATA_API_URL", "https://api.variantperception.com") + "/api/v1"
 
     def get_series(
         self,
@@ -109,9 +107,7 @@ class VPAnalysisAPI:
             RateLimitError: If rate limits are exceeded.
         """
         try:
-            df = self._get_series_internal(
-                [f"vp:{s}" for s in series_list], start_date=start_date, end_date=end_date
-            )
+            df = self._get_series_internal([f"vp:{s}" for s in series_list], start_date=start_date, end_date=end_date)
             df.rename(columns=lambda x: x[3:], inplace=True)
             return df
         except httpx.HTTPStatusError as e:
@@ -149,10 +145,7 @@ class VPAnalysisAPI:
         """
         CHUNKING = 100
         unique_series_list = list(set(series_list))
-        series_chunks = [
-            unique_series_list[i : i + CHUNKING]
-            for i in range(0, len(unique_series_list), CHUNKING)
-        ]
+        series_chunks = [unique_series_list[i : i + CHUNKING] for i in range(0, len(unique_series_list), CHUNKING)]
 
         df_list = []
         for chunk in series_chunks:
@@ -180,9 +173,7 @@ class VPAnalysisAPI:
                 if response.status_code == 429:
                     raise RateLimitError("Rate limit exceeded. Please try again later.")
                 if response.status_code != 200:
-                    raise APIRequestError(
-                        f"API request failed with status {response.status_code}: {response.text}"
-                    )
+                    raise APIRequestError(f"API request failed with status {response.status_code}: {response.text}")
 
                 with pa.ipc.open_file(response.content) as reader:
                     df_list.append(reader.read_pandas())
@@ -192,9 +183,7 @@ class VPAnalysisAPI:
                     raise RateLimitError("Rate limit exceeded. Please try again later.") from e
                 raise APIRequestError(f"Failed to get series data: {str(e)}") from e
             except Exception as e:
-                raise APIRequestError(
-                    f"Unexpected error while getting series data: {str(e)}"
-                ) from e
+                raise APIRequestError(f"Unexpected error while getting series data: {str(e)}") from e
 
         return pd.concat(df_list, axis=1)
 
@@ -255,136 +244,6 @@ class VPAnalysisAPI:
         df = df.loc[df.first_valid_index() :]
         return df
 
-    def get_security_factors(
-        self,
-        securities: List[str],
-        factors: List[str],
-        first_revision: bool = False,
-    ) -> pd.DataFrame:
-        """Get security factors data.
-
-        Args:
-            securities: List of security tickers.
-            factors: List of factor identifiers.
-
-        Returns:
-            pd.DataFrame: DataFrame containing the security factors data.
-
-        Raises:
-            APIRequestError: If the API request fails.
-            RateLimitError: If rate limits are exceeded.
-        """
-        
-        data_body = {
-            "securities": securities, 
-            "factors": factors, 
-            "first_revision": first_revision
-        }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-
-        try:
-            with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.post(
-                    "/security_factors", json=data_body, headers=headers, timeout=600
-                )
-
-            if response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.")
-            if response.status_code != 200:
-                raise APIRequestError(
-                    f"API request failed with status {response.status_code}: {response.text}"
-                )
-
-            with pa.ipc.open_file(response.content) as reader:
-                df = reader.read_pandas()
-
-            df = df.pivot(index="dt", columns=["stock_code", "factor_identifier"], values="value")
-            return df
-
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.") from e
-            raise APIRequestError(f"Failed to get security factors: {str(e)}") from e
-        except Exception as e:
-            raise APIRequestError(
-                f"Unexpected error while getting security factors: {str(e)}"
-            ) from e
-
-    def get_factors(self) -> pd.DataFrame:
-        """Get available factors data.
-
-        Returns:
-            pd.DataFrame: DataFrame containing the available factors.
-
-        Raises:
-            APIRequestError: If the API request fails.
-            RateLimitError: If rate limits are exceeded.
-        """
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-
-        try:
-            with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.get("/factors", headers=headers, timeout=600)
-
-            if response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.")
-            if response.status_code != 200:
-                raise APIRequestError(
-                    f"API request failed with status {response.status_code}: {response.text}"
-                )
-
-            with pa.ipc.open_file(response.content) as reader:
-                return reader.read_pandas()
-
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.") from e
-            raise APIRequestError(f"Failed to get factors: {str(e)}") from e
-        except Exception as e:
-            raise APIRequestError(f"Unexpected error while getting factors: {str(e)}") from e
-
-    def get_securities(self) -> pd.DataFrame:
-        """Get available securities data.
-
-        Returns:
-            pd.DataFrame: DataFrame containing the available securities.
-
-        Raises:
-            APIRequestError: If the API request fails.
-            RateLimitError: If rate limits are exceeded.
-        """
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-
-        try:
-            with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.get("/securities", headers=headers, timeout=600)
-
-            if response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.")
-            if response.status_code != 200:
-                raise APIRequestError(
-                    f"API request failed with status {response.status_code}: {response.text}"
-                )
-
-            with pa.ipc.open_file(response.content) as reader:
-                return reader.read_pandas()
-
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                raise RateLimitError("Rate limit exceeded. Please try again later.") from e
-            raise APIRequestError(f"Failed to get securities: {str(e)}") from e
-        except Exception as e:
-            raise APIRequestError(f"Unexpected error while getting securities: {str(e)}") from e
-
     def invalidate_cache(self, tickers: np.ndarray) -> None:
         """Invalidate the cache for specified tickers.
 
@@ -403,25 +262,19 @@ class VPAnalysisAPI:
 
         try:
             with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.post(
-                    "/series/invalidateCache", headers=headers, json=data_body, timeout=600
-                )
+                response = client.post("/series/invalidateCache", headers=headers, json=data_body, timeout=600)
 
             num_of_retries = 0
             while is_server_overload_error(response) and num_of_retries < 3:
                 time.sleep(10)
                 with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                    response = client.post(
-                        "/series/invalidateCache", json=data_body, headers=headers, timeout=600
-                    )
+                    response = client.post("/series/invalidateCache", json=data_body, headers=headers, timeout=600)
                 num_of_retries += 1
 
             if response.status_code == 429:
                 raise RateLimitError("Rate limit exceeded. Please try again later.")
             if response.status_code != 200:
-                raise APIRequestError(
-                    f"API request failed with status {response.status_code}: {response.text}"
-                )
+                raise APIRequestError(f"API request failed with status {response.status_code}: {response.text}")
 
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 429:
@@ -460,16 +313,12 @@ class VPAnalysisAPI:
 
         try:
             with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.post(
-                    "/model/lppl", json=data_body, headers=headers, timeout=1200
-                )
+                response = client.post("/model/lppl", json=data_body, headers=headers, timeout=1200)
 
             if response.status_code == 429:
                 raise RateLimitError("Rate limit exceeded. Please try again later.")
             if response.status_code != 200:
-                raise APIRequestError(
-                    f"API request failed with status {response.status_code}: {response.text}"
-                )
+                raise APIRequestError(f"API request failed with status {response.status_code}: {response.text}")
 
             with pa.ipc.open_file(response.content) as reader:
                 return reader.read_pandas()
