@@ -313,7 +313,7 @@ class VPAnalysisAPI:
 
         try:
             with httpx.Client(http2=True, base_url=self.data_api_url) as client:
-                response = client.post("/model/lppl", json=data_body, headers=headers, timeout=1200)
+                response = client.post("/model/lppl3", json=data_body, headers=headers, timeout=1200)
 
             if response.status_code == 429:
                 raise RateLimitError("Rate limit exceeded. Please try again later.")

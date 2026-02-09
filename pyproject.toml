@@ -1,6 +1,6 @@
 [project]
 name = "vp-analysis-api"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Variant Perception", email="systems@variantperception.com" },
 ]
