@@ -143,7 +143,7 @@ class VPAnalysisAPI:
             APIRequestError: If the API request fails.
             RateLimitError: If rate limits are exceeded.
         """
-        CHUNKING = 100
+        CHUNKING = 40
         unique_series_list = list(set(series_list))
         series_chunks = [unique_series_list[i : i + CHUNKING] for i in range(0, len(unique_series_list), CHUNKING)]
 
@@ -221,6 +221,70 @@ class VPAnalysisAPI:
             end_date=end_date,
             currency=currency,
         )
+
+    def get_df_from_asset_factor_list(
+        self,
+        asset_factor_list: List[str],
+        freq: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        first_revision: Optional[bool] = False,
+    ) -> pd.DataFrame:
+        """Get DataFrame from a list of (asset, factor) tuples with optional parameters.
+
+        Args:
+            asset_factor_list: List of tickers to retrieve.
+            freq: Optional frequency for the data.
+            start_date: Optional start date in YYYY-MM-DD format.
+            end_date: Optional end date in YYYY-MM-DD format.
+            first_revision: Optional boolean to get first revision date.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the requested series data.
+
+        Raises:
+            APIRequestError: If the API request fails.
+            RateLimitError: If rate limits are exceeded.
+        """
+
+        series_list = [f"vp:ss:{asset}${factor}" for asset, factor in asset_factor_list]
+        if first_revision:
+            series_list = [f"{s}[0]" for s in series_list]
+
+        return self._get_series_internal(series_list, freq=freq, start_date=start_date, end_date=end_date)
+
+
+    def get_df_from_macro_series_list(
+        self,
+        macro_series: List[str],
+        freq: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        first_revision: Optional[bool] = False,
+    ) -> pd.DataFrame:
+        """Get DataFrame from a list of (asset, factor) tuples with optional parameters.
+
+        Args:
+            asset_factor_list: List of tickers to retrieve.
+            freq: Optional frequency for the data.
+            start_date: Optional start date in YYYY-MM-DD format.
+            end_date: Optional end date in YYYY-MM-DD format.
+            first_revision: Optional boolean to get first revision date.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the requested series data.
+
+        Raises:
+            APIRequestError: If the API request fails.
+            RateLimitError: If rate limits are exceeded.
+        """
+
+        series_list = [f"vp:{series}" for series in macro_series]
+        if first_revision:
+            series_list = [f"{s}[0]" for s in series_list]
+
+        return self._get_series_internal(series_list, freq=freq, start_date=start_date, end_date=end_date)
+
 
     def clean_df(
         self,
@@ -329,3 +393,55 @@ class VPAnalysisAPI:
             raise APIRequestError(f"Failed to run LPPL model: {str(e)}") from e
         except Exception as e:
             raise APIRequestError(f"Unexpected error while running LPPL model: {str(e)}") from e
+
+    def get_factors(self) -> pd.DataFrame:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        with httpx.Client(http2=True, base_url=self.data_api_url) as client:
+            response = client.get("/factors", headers=headers)
+
+        with pa.ipc.open_file(response.content) as reader:
+            return reader.read_pandas()
+
+
+    def get_equity_assets(self) -> pd.DataFrame:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        with httpx.Client(http2=True, base_url=self.data_api_url) as client:
+            response = client.get("/equity-assets", headers=headers)
+
+        with pa.ipc.open_file(response.content) as reader:
+            return reader.read_pandas()
+
+
+    def get_macro_assets(self) -> pd.DataFrame:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        with httpx.Client(http2=True, base_url=self.data_api_url) as client:
+            response = client.get("/macro-assets", headers=headers)
+
+        with pa.ipc.open_file(response.content) as reader:
+            return reader.read_pandas()
+
+
+    def get_macro_series_list(self) -> pd.DataFrame:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        with httpx.Client(http2=True, base_url=self.data_api_url) as client:
+            response = client.get("/macro-series-list", headers=headers)
+
+        with pa.ipc.open_file(response.content) as reader:
+            return reader.read_pandas()
+

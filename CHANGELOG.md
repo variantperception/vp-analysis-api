@@ -8,3 +8,6 @@
 
 ## `1.0.1` - Feb 9, 2026
 * Update LPPL endpoint
+
+## `1.1.0` - Feb 19, 2026
+* Make it easier to search and improve usability of function interfaces
