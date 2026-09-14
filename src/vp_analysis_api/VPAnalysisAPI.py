@@ -143,7 +143,7 @@ class VPAnalysisAPI:
             APIRequestError: If the API request fails.
             RateLimitError: If rate limits are exceeded.
         """
-        CHUNKING = 40
+        CHUNKING = 200
         unique_series_list = list(set(series_list))
         series_chunks = [unique_series_list[i : i + CHUNKING] for i in range(0, len(unique_series_list), CHUNKING)]
 
