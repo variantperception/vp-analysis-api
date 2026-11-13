@@ -31,7 +31,7 @@ The entire library is a single class `VPAnalysisAPI` in `src/vp_analysis_api/VPA
 
 Key patterns:
 - All API responses use **Apache Arrow IPC format** (`pyarrow.ipc.open_file`), deserialized to pandas DataFrames
-- Series requests are **chunked in batches of 40** via `_get_series_internal()`
+- Series requests are **chunked in batches of 200** via `_get_series_internal()`
 - `get_series()` is the simplified public method (auto-prepends `vp:` prefix, strips it from results); `get_df_from_series_list()` is the raw version
 - Custom exception hierarchy: `VPAnalysisAPIError` -> `AuthenticationError`, `APIRequestError`, `RateLimitError`
 - Base API URL is overridable via `VP_DATA_API_URL` env var

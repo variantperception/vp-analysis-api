@@ -19,6 +19,11 @@ pip install git+https://github.com/variantperception/vp-analysis-api.git
 ## Usage
 See the [examples](./examples).
 
+### Using AI agents
+If you use an AI coding agent to fetch VP data, give it the instructions in [AGENTS.md](./AGENTS.md). They explain how to authenticate, look up asset/model IDs, fetch data, and read the results.
+
+To use them, copy `AGENTS.md` into your project, or add its contents to your agent's instruction file.
+
 ## Swagger documentation
 For detailed API documentation, please visit our Swagger documentation:
 
